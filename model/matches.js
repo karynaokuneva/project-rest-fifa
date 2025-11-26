@@ -1,20 +1,20 @@
-const mongoose = reqiure("mongoose");
+const mongoose = require("mongoose");
 
 const matchModel = new mongoose.Schema({
   date: {
-    type: string,
+    type: String,
     required: true,
   },
   teamHome: {
-    type: string,
+    type: String,
     required: true,
   },
   teamAway: {
-    type: string,
+    type: String,
     required: true,
   },
   score: {
-    type: string,
+    type: String,
     required: true,
   },
 });

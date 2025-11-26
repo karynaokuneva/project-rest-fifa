@@ -32,7 +32,7 @@ app.post("/matches", async (req, res) => {
       date,
       teamHome,
       teamAway,
-      Score,
+      score,
     });
 
     const savedMatch = await match.save();
