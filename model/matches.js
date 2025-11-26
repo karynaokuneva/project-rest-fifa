@@ -7,7 +7,7 @@ const matchModel = new mongoose.Schema({
   },
   teamHome: {
     type: string,
-    reqiured: true,
+    required: true,
   },
   teamAway: {
     type: string,
