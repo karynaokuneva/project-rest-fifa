@@ -1,0 +1,171 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "FIFA Matches REST API",
+    "version": "1.0.0",
+    "description": "Usługa REST do obsługi meczów mistrzostw świata FIFA (projekt zaliczeniowy)."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Lokalny serwer deweloperski"
+    }
+  ],
+  "paths": {
+    "/matches": {
+      "get": {
+        "summary": "Pobierz wszystkie mecze",
+        "description": "Zwraca listę wszystkich meczów zapisanych w bazie danych.",
+        "responses": {
+          "200": {
+            "description": "Lista meczów",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Match"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Błąd serwera podczas pobierania meczów"
+          }
+        }
+      },
+      "post": {
+        "summary": "Dodaj nowy mecz",
+        "description": "Dodaje nowy mecz do bazy danych.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatchInput"
+              },
+              "example": {
+                "date": "2024-06-01",
+                "teamHome": "Polska",
+                "teamAway": "Hiszpania",
+                "score": "3:2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mecz został dodany poprawnie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Niepoprawne dane wejściowe"
+          },
+          "500": {
+            "description": "Błąd serwera podczas zapisywania meczu"
+          }
+        }
+      }
+    },
+    "/matches/{country}": {
+      "get": {
+        "summary": "Pobierz mecze danego kraju",
+        "description": "Zwraca wszystkie mecze, w których podany kraj występuje jako gospodarze lub goście.",
+        "parameters": [
+          {
+            "name": "country",
+            "in": "path",
+            "required": true,
+            "description": "Nazwa kraju (np. Polska, Hiszpania).",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Polska"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista meczów danego kraju",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Match"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Błąd serwera podczas pobierania meczów danego kraju"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Match": {
+        "type": "object",
+        "description": "Pełny obiekt meczu zapisany w bazie danych.",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Identyfikator dokumentu w MongoDB."
+          },
+          "date": {
+            "type": "string",
+            "description": "Data meczu w formacie tekstowym, np. 2024-06-01."
+          },
+          "teamHome": {
+            "type": "string",
+            "description": "Nazwa drużyny gospodarzy."
+          },
+          "teamAway": {
+            "type": "string",
+            "description": "Nazwa drużyny gości."
+          },
+          "score": {
+            "type": "string",
+            "description": "Wynik meczu, np. 3:2."
+          },
+          "__v": {
+            "type": "integer",
+            "description": "Wersja dokumentu (pole dodawane przez Mongoose)."
+          }
+        }
+      },
+      "MatchInput": {
+        "type": "object",
+        "description": "Dane potrzebne do utworzenia nowego meczu.",
+        "required": ["date", "teamHome", "teamAway", "score"],
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Data meczu w formacie tekstowym, np. 2024-06-01."
+          },
+          "teamHome": {
+            "type": "string",
+            "description": "Nazwa drużyny gospodarzy."
+          },
+          "teamAway": {
+            "type": "string",
+            "description": "Nazwa drużyny gości."
+          },
+          "score": {
+            "type": "string",
+            "description": "Wynik meczu, np. 3:2."
+          }
+        }
+      }
+    }
+  }
+}
