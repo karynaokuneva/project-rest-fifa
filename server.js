@@ -1,6 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
 
 const Match = require("./model/matches");
 
@@ -9,7 +11,10 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 
+//dokumentacja swagger -> api-docs
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 mongoose
 
   .connect("mongodb://127.0.0.1:27017/fifa")
@@ -24,6 +29,7 @@ app.get("/", (req, res) => {
   res.send(" FIFA REST API działa");
 });
 
+// POST
 app.post("/matches", async (req, res) => {
   try {
     const { date, teamHome, teamAway, score } = req.body;
@@ -44,6 +50,7 @@ app.post("/matches", async (req, res) => {
   }
 });
 
+// GET do wszystkich
 app.get("/matches", async (req, res) => {
   try {
     const matches = await Match.find();
@@ -54,6 +61,7 @@ app.get("/matches", async (req, res) => {
   }
 });
 
+// GET do konkretnego kraju
 app.get("/matches/:country", async (req, res) => {
   try {
     const country = req.params.country;
