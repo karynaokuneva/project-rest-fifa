@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
     <title>FIFA REST API</title>
   </head>
   <body>
@@ -25,8 +26,186 @@
             <label for="teamHome">Drużyna gospodarzy:</label><br />
             <input type="text" id="teamHome" name="teamHome" />
           </p>
+          <p>
+            <label for="teamAway">Drużyna gości:</label><br />
+            <input type="text" id="teamAway" name="teamAway" />
+          </p>
+          <p>
+            <label for="score">Wynik meczu:</label><br />
+            <input type="text" id="score" name="score" />
+          </p>
+          <button type="submit">Dodaj mecz</button>
+          <p id="addMessage"></p>
         </form>
       </section>
+      <!-- Sekcja: Pobieranie meczów -->
+      <section>
+        <h2>Lista meczów</h2>
+
+        <button id="loadAllBtn">Pobierz wszystkie mecze</button>
+
+        <form id="filterForm">
+          <p>
+            <label for="countryFilter">Kraj (np. Polska):</label><br />
+            <input
+              type="text"
+              id="countryFilter"
+              name="countryFilter"
+              placeholder="np. Polska"
+            />
+          </p>
+
+          <button type="submit">Pobierz mecze danego kraju</button>
+        </form>
+
+        <!-- Tabela z wynikami -->
+        <table id="matchesTable" border="1">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Gospodarze</th>
+              <th>Goście</th>
+              <th>Wynik</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Wiersze będą dodawane dynamicznie przez JS -->
+          </tbody>
+        </table>
+      </section>
     </main>
+    <footer>
+      <p>Projekt zaliczeniowy – REST API dla meczów FIFA. Karyna Okuneva.</p>
+    </footer>
+    <script>
+      const API_BASE_URL = "http://localhost:3000";
+
+      // --- Funkcja pomocnicza: czyszczenie tabeli ---
+      function clearTable() {
+        const tbody = document.querySelector("#matchesTable tbody");
+        tbody.innerHTML = "";
+      }
+
+      // --- Funkcja: wstawienie meczów do tabeli ---
+      function renderMatches(matches) {
+        const tbody = document.querySelector("#matchesTable tbody");
+        clearTable();
+
+        if (!matches || matches.length === 0) {
+          const row = document.createElement("tr");
+          const cell = document.createElement("td");
+          cell.colSpan = 4;
+          cell.textContent = "Brak meczów do wyświetlenia.";
+          row.appendChild(cell);
+          tbody.appendChild(row);
+          return;
+        }
+
+        matches.forEach((match) => {
+          const row = document.createElement("tr");
+
+          const dateCell = document.createElement("td");
+          dateCell.textContent = match.date;
+
+          const homeCell = document.createElement("td");
+          homeCell.textContent = match.teamHome;
+
+          const awayCell = document.createElement("td");
+          awayCell.textContent = match.teamAway;
+
+          const scoreCell = document.createElement("td");
+          scoreCell.textContent = match.score;
+
+          row.appendChild(dateCell);
+          row.appendChild(homeCell);
+          row.appendChild(awayCell);
+          row.appendChild(scoreCell);
+
+          tbody.appendChild(row);
+        });
+      }
+
+      // =========================================================
+      // 🟦 FUNKCJA 1: Pobieranie wszystkich meczów (GET /matches)
+      // =========================================================
+      async function loadAllMatches() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/matches`);
+          const matches = await response.json();
+          renderMatches(matches);
+        } catch (error) {
+          console.error("Błąd GET /matches:", error);
+        }
+      }
+
+      document
+        .getElementById("loadAllBtn")
+        .addEventListener("click", loadAllMatches);
+
+      // =========================================================
+      // 🟩 FUNKCJA 2: Dodawanie meczu (POST /matches)
+      // =========================================================
+      document
+        .getElementById("postMatch")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault(); // zatrzymuje przeładowanie strony
+
+          const date = document.getElementById("date").value;
+          const teamHome = document.getElementById("teamHome").value;
+          const teamAway = document.getElementById("teamAway").value;
+          const score = document.getElementById("score").value;
+          const message = document.getElementById("addMessage");
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/matches`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                date,
+                teamHome,
+                teamAway,
+                score,
+              }),
+            });
+
+            if (!response.ok) {
+              message.textContent = "Błąd podczas dodawania meczu.";
+              return;
+            }
+
+            message.textContent = "Mecz dodano poprawnie!";
+            loadAllMatches(); // automatycznie odświeża tabelę
+          } catch (error) {
+            console.error("Błąd POST /matches:", error);
+            message.textContent = "Błąd po stronie klienta.";
+          }
+        });
+
+      // =========================================================
+      // 🟧 FUNKCJA 3: Pobieranie meczów danego kraju (GET /matches/:country)
+      // =========================================================
+      document
+        .getElementById("filterForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const country = document.getElementById("countryFilter").value.trim();
+          if (!country) return alert("Podaj kraj!");
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/matches/${country}`);
+
+            const matches = await response.json();
+            renderMatches(matches);
+          } catch (error) {
+            console.error(
+              "Błąd podczas pobierania meczów danego kraju:",
+              error
+            );
+          }
+        });
+    </script>
   </body>
 </html>
