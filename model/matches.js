@@ -1,6 +1,8 @@
+// Model "Match" - opisuje strukturę jednego meczu w bazie danych
+
 const mongoose = require("mongoose");
 
-const matchModel = new mongoose.Schema({
+const matchSchema = new mongoose.Schema({
   date: {
     type: String,
     required: true,
@@ -19,4 +21,4 @@ const matchModel = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Match", matchModel);
+module.exports = mongoose.model("Match", matchSchema);

@@ -54,6 +54,26 @@ app.get("/matches", async (req, res) => {
   }
 });
 
+app.get("/matches/:country", async (req, res) => {
+  try {
+    const country = req.params.country;
+    const matches = await Match.find({
+      $or: [
+        {
+          teamHome: country,
+        },
+        { teamAway: country },
+      ],
+    });
+    res.json(matches);
+  } catch (error) {
+    console.error("Bląd podczas pobierania metcha danego kraju");
+    res
+      .status(500)
+      .json({ error: "Bląd podczas pobierania metcha danego kraju" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server dziala na http://localhost${PORT}`);
 });
